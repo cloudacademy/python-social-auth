@@ -251,7 +251,9 @@ class SAMLAuth(BaseAuth):
             'get_data': self.strategy.request_get(),
             'post_data': self.strategy.request_post(),
         }
-        return OneLogin_Saml2_Auth(request_info, config)
+        saml2_auth = OneLogin_Saml2_Auth(request_info, config)
+        import pdb;pdb.set_trace()
+        return saml2_auth
 
     def auth_url(self):
         """Get the URL to which we must redirect in order to
