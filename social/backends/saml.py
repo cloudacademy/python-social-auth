@@ -204,7 +204,7 @@ class SAMLAuth(BaseAuth):
                 'x509cert': self.setting('SP_PUBLIC_CERT'),
                 'privateKey': self.setting('SP_PRIVATE_KEY'),
             },
-            'strict': False,  # We must force strict mode - for security
+            'strict': True,  # We must force strict mode - for security
         }
         config["security"].update(self.setting("SECURITY_CONFIG", {}))
         config["sp"].update(self.setting("SP_EXTRA", {}))
@@ -265,7 +265,9 @@ class SAMLAuth(BaseAuth):
         # arbitrary data.  We use it to store the specific SAML IdP
         # name, since we multiple IdPs share the same auth_complete
         # URL.
-        return auth.login(return_to=idp_name)
+        auth_login = auth.login(return_to=idp_name)
+        print auth_login
+        return auth_login
 
     def get_user_details(self, response):
         """Get user details like full name, email, etc. from the
@@ -288,6 +290,7 @@ class SAMLAuth(BaseAuth):
         The user has been redirected back from the IdP and we should
         now log them in, if everything checks out.
         """
+        import pdb;pdb.set_trace()
         idp_name = self.strategy.request_data().get('RelayState', 'idp-name-relay-state')
         idp = self.get_idp(idp_name)
         auth = self._create_saml_auth(idp)
