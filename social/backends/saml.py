@@ -204,7 +204,7 @@ class SAMLAuth(BaseAuth):
                 'x509cert': self.setting('SP_PUBLIC_CERT'),
                 'privateKey': self.setting('SP_PRIVATE_KEY'),
             },
-            'strict': True,  # We must force strict mode - for security
+            'strict': False,  # We must force strict mode - for security
         }
         config["security"].update(self.setting("SECURITY_CONFIG", {}))
         config["sp"].update(self.setting("SP_EXTRA", {}))
