@@ -252,13 +252,6 @@ class SAMLAuth(BaseAuth):
             'post_data': self.strategy.request_post(),
         }
         saml2_auth = OneLogin_Saml2_Auth(request_info, config)
-        
-        from base64 import b64decode
-        print "SAMLResponse: \n"
-        print b64decode(saml2_auth.__dict__['_OneLogin_Saml2_Auth__request_data']['post_data']['SAMLResponse'])       
-        print "\n"
-        
-        import pdb;pdb.set_trace()
         return saml2_auth
 
     def auth_url(self):
@@ -302,6 +295,12 @@ class SAMLAuth(BaseAuth):
         idp_name = self.strategy.request_data().get('RelayState', 'idp-name-relay-state')
         idp = self.get_idp(idp_name)
         auth = self._create_saml_auth(idp)
+        
+        from base64 import b64decode
+        print "SAMLResponse: \n"
+        print b64decode(auth.__dict__['_OneLogin_Saml2_Auth__request_data']['post_data']['SAMLResponse'])       
+        print "\n"
+        
         auth.process_response()
         errors = auth.get_errors()
         if errors or not auth.is_authenticated():
