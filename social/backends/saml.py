@@ -42,9 +42,14 @@ class SAMLIdentityProvider(object):
         If you want to use the NameID, it's available via
         attributes['name_id']
         """
-        return attributes[
+        attr = attributes[
             self.conf.get('attr_user_permanent_id', OID_USERID)
-        ][0]
+        ]
+        
+        if isinstance(attr, (list, tuple, set)):
+          attr = attr[0]
+
+        return attr
 
     # Attributes processing:
     def get_user_details(self, attributes):
