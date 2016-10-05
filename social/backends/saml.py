@@ -297,6 +297,12 @@ class SAMLAuth(BaseAuth):
         now log them in, if everything checks out.
         """
         #import pdb;pdb.set_trace()
+        try:
+            print "SAML Request Data: \n"
+            print '\n'.join(map(unicode, self.strategy.request_data().items()))
+        except Exception:
+            pass
+
         idp_name = self.strategy.request_data().get('RelayState', 'idp-name-relay-state')
         idp = self.get_idp(idp_name)
         auth = self._create_saml_auth(idp)
