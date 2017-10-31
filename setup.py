@@ -8,8 +8,6 @@ from setuptools import setup
 
 PY3 = os.environ.get('BUILD_VERSION') == '3' or sys.version_info[0] == 3
 
-version = __import__('social').__version__
-
 LONG_DESCRIPTION = """
 Python Social Auth is an easy to setup social authentication/registration
 mechanism with support for several frameworks and auth providers.
