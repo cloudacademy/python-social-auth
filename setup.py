@@ -6,7 +6,7 @@ from os.path import join, dirname, split
 from setuptools import setup
 
 
-PY3 = os.environ.get('BUILD_VERSION') == '3' or sys.version_info[0] == 3
+PY3 = False
 
 LONG_DESCRIPTION = """
 Python Social Auth is an easy to setup social authentication/registration
