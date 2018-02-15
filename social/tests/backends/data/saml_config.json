@@ -19,5 +19,13 @@
             "entity_id": "https://unused.saml.example.com",
             "url": "https://unused.saml.example.com/SAML2/Redirect/SSO"
         }
+    },
+    "SOCIAL_AUTH_SAML_SECURITY_CONFIG": {
+        "testshib": {
+            "signatureAlgorithm": "http://www.w3.org/2001/09/xmldsig#rsa-sha256"
+        },
+        "_default": {
+            "authnRequestsSigned": true
+        }
     }
 }
