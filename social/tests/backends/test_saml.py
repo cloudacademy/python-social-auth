@@ -16,6 +16,7 @@ except ImportError:
 
 from social.tests.backends.base import BaseBackendTest
 from social.exceptions import AuthMissingParameter
+from social.backends import saml
 from social.p3 import urlparse, urlunparse, urlencode, parse_qs
 
 DATA_DIR = path.join(path.dirname(__file__), 'data')
@@ -87,6 +88,23 @@ class SAMLTest(BaseBackendTest):
         xml, errors = self.backend.generate_metadata_xml()
         self.assertEqual(len(errors), 0)
         self.assertEqual(xml[0], '<')
+
+    def test_generate_saml_config(self):
+        """Test Idp specific configuration for Security"""
+        testshib_idp = saml.SAMLIdentityProvider(
+            'testshib',
+            entity_id='https://dummy.none/saml2',
+            url='https://dummy.none/SSO',
+            x509cert=''
+        )
+        # Testing specific IDP
+        conf = self.backend.generate_saml_config(testshib_idp)
+        self.assertEqual(conf['security']['signatureAlgorithm'], "http://www.w3.org/2001/09/xmldsig#rsa-sha256")
+        self.assertEqual(conf['security']['authnRequestsSigned'], False)
+        # Testing not recognized IPD, fallback to _default conf
+        conf = self.backend.generate_saml_config(saml.DummySAMLIdentityProvider())
+        self.assertEqual(conf['security']['signatureAlgorithm'], "http://www.w3.org/2001/09/xmldsig#rsa-sha1")
+        self.assertEqual(conf['security']['authnRequestsSigned'], True)
 
     def test_login(self):
         """Test that we can authenticate with a SAML IdP (TestShib)"""

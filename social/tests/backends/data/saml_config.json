@@ -22,10 +22,12 @@
     },
     "SOCIAL_AUTH_SAML_SECURITY_CONFIG": {
         "testshib": {
+            "authnRequestsSigned": false,
             "signatureAlgorithm": "http://www.w3.org/2001/09/xmldsig#rsa-sha256"
         },
         "_default": {
-            "authnRequestsSigned": true
+            "authnRequestsSigned": true,
+            "signatureAlgorithm": "http://www.w3.org/2001/09/xmldsig#rsa-sha1"
         }
     }
 }
