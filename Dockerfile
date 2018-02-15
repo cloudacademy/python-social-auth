@@ -9,5 +9,4 @@ WORKDIR /root/python-social-auth
 RUN python setup.py install
 RUN pip install -r test_requirements.txt
 
-#ENTRYPOINT nosetests social/tests/backends/test_saml.py
-ENTRYPOINT /bin/bash
+ENTRYPOINT nosetests social/tests/backends/test_saml.py
