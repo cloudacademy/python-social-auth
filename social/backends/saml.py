@@ -211,7 +211,23 @@ class SAMLAuth(BaseAuth):
             },
             'strict': False,  # We must force strict mode - for security
         }
-        config["security"].update(self.setting("SECURITY_CONFIG", {}))
+
+        # IDP specific security configuration:
+        # 
+        # SOCIAL_AUTH_SAML_SECURITY_CONFIG = {
+        #     "test_idp_provider": {
+        #         "signatureAlgorithm": 'http://www.w3.org/2001/09/xmldsig#rsa-sha256',
+        #     },
+        #     "_default": {
+        #         "signatureAlgorithm": 'http://www.w3.org/2001/09/xmldsig#rsa-sha1',
+        #     },        
+        # }
+        security_dict = self.setting("SECURITY_CONFIG", {})
+        try:
+            config["security"].update(security_dict[idp.name])
+        except KeyError:
+            config["security"].update(security_dict.get("_default",{}))
+        
         config["sp"].update(self.setting("SP_EXTRA", {}))
         return config
 
