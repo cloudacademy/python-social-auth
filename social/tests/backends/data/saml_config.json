@@ -29,5 +29,13 @@
             "authnRequestsSigned": true,
             "signatureAlgorithm": "http://www.w3.org/2001/09/xmldsig#rsa-sha1"
         }
+    },
+    "SOCIAL_AUTH_SAML_SP_EXTRA": {
+        "testshib": {
+            "NameIDFormat": "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified"
+        },
+        "_default": {
+            "NameIDFormat": "urn:oasis:names:tc:SAML:2.0:nameid-format:string"
+        }
     }
 }
