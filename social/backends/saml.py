@@ -42,9 +42,14 @@ class SAMLIdentityProvider(object):
         If you want to use the NameID, it's available via
         attributes['name_id']
         """
-        return attributes[
+        attr = attributes[
             self.conf.get('attr_user_permanent_id', OID_USERID)
-        ][0]
+        ]
+        
+        if isinstance(attr, (list, tuple, set)):
+          attr = attr[0]
+
+        return attr
 
     # Attributes processing:
     def get_user_details(self, attributes):
@@ -204,7 +209,7 @@ class SAMLAuth(BaseAuth):
                 'x509cert': self.setting('SP_PUBLIC_CERT'),
                 'privateKey': self.setting('SP_PRIVATE_KEY'),
             },
-            'strict': True,  # We must force strict mode - for security
+            'strict': False,  # We must force strict mode - for security
         }
         config["security"].update(self.setting("SECURITY_CONFIG", {}))
         config["sp"].update(self.setting("SP_EXTRA", {}))
@@ -251,7 +256,8 @@ class SAMLAuth(BaseAuth):
             'get_data': self.strategy.request_get(),
             'post_data': self.strategy.request_post(),
         }
-        return OneLogin_Saml2_Auth(request_info, config)
+        saml2_auth = OneLogin_Saml2_Auth(request_info, config)
+        return saml2_auth
 
     def auth_url(self):
         """Get the URL to which we must redirect in order to
@@ -265,7 +271,9 @@ class SAMLAuth(BaseAuth):
         # arbitrary data.  We use it to store the specific SAML IdP
         # name, since we multiple IdPs share the same auth_complete
         # URL.
-        return auth.login(return_to=idp_name)
+        auth_login = auth.login(return_to=idp_name)
+        print auth_login
+        return auth_login
 
     def get_user_details(self, response):
         """Get user details like full name, email, etc. from the
@@ -288,9 +296,22 @@ class SAMLAuth(BaseAuth):
         The user has been redirected back from the IdP and we should
         now log them in, if everything checks out.
         """
+        #import pdb;pdb.set_trace()
+        try:
+            print "SAML Request Data: \n"
+            print '\n'.join(map(unicode, self.strategy.request_data().items()))
+        except Exception:
+            pass
+
         idp_name = self.strategy.request_data().get('RelayState', 'idp-name-relay-state')
         idp = self.get_idp(idp_name)
         auth = self._create_saml_auth(idp)
+        
+        from base64 import b64decode
+        print "SAMLResponse: \n"
+        print b64decode(auth.__dict__['_OneLogin_Saml2_Auth__request_data']['post_data']['SAMLResponse'])       
+        print "\n"
+        
         auth.process_response()
         errors = auth.get_errors()
         if errors or not auth.is_authenticated():

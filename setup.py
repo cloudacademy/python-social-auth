@@ -6,9 +6,7 @@ from os.path import join, dirname, split
 from setuptools import setup
 
 
-PY3 = os.environ.get('BUILD_VERSION') == '3' or sys.version_info[0] == 3
-
-version = __import__('social').__version__
+PY3 = False
 
 LONG_DESCRIPTION = """
 Python Social Auth is an easy to setup social authentication/registration
@@ -59,13 +57,13 @@ with open(tests_requirements_file, 'r') as f:
 
 setup(
     name='python-social-auth',
-    version=version,
+    version='',
     author='Matias Aguirre',
     author_email='matiasaguirre@gmail.com',
     description='Python social authentication made simple.',
     license='BSD',
     keywords='django, flask, pyramid, webpy, openid, oauth, social auth',
-    url='https://github.com/omab/python-social-auth',
+    url='https://github.com/cloudacademy/python-social-auth',
     packages=get_packages(),
     long_description=long_description(),
     install_requires=requirements,

@@ -66,8 +66,12 @@ def do_complete(backend, login, user=None, redirect_name='next',
             social_user = user.social_user
             login(backend, user, social_user)
             # store last login backend name in session
+            # Please note that social_user is empty if SAML is used
+            last_login_backend = user.backend
+            if social_user:
+              last_login_backend = social_user.provider
             backend.strategy.session_set('social_auth_last_login_backend',
-                                         social_user.provider)
+                                         last_login_backend)
 
             if is_new:
                 url = setting_url(backend,

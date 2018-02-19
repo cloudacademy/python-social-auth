@@ -89,11 +89,10 @@ class DjangoStrategy(BaseStrategy):
             template = loader.get_template_from_string(html)
         return template.render(RequestContext(self.request, context))
 
-    def authenticate(self, backend, *args, **kwargs):
-        kwargs['strategy'] = self
-        kwargs['storage'] = self.storage
-        kwargs['backend'] = backend
-        return authenticate(*args, **kwargs)
+    def clean_authenticate_args(self, request=None, *args, **kwargs):
+        if request is not None:
+            kwargs['request'] = request
+        return args, kwargs
 
     def session_get(self, name, default=None):
         return self.session.get(name, default)
