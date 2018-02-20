@@ -57,7 +57,7 @@ with open(tests_requirements_file, 'r') as f:
 
 setup(
     name='python-social-auth',
-    version='',
+    version='v0.6',
     author='Matias Aguirre',
     author_email='matiasaguirre@gmail.com',
     description='Python social authentication made simple.',
