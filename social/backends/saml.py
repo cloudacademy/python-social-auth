@@ -211,11 +211,42 @@ class SAMLAuth(BaseAuth):
             },
             'strict': False,  # We must force strict mode - for security
         }
-        config["security"].update(self.setting("SECURITY_CONFIG", {}))
-        config["sp"].update(self.setting("SP_EXTRA", {}))
+
+        # IDP specific security configuration:
+        # 
+        # SOCIAL_AUTH_SAML_SECURITY_CONFIG = {
+        #     "test_idp_provider": {
+        #         "signatureAlgorithm": 'http://www.w3.org/2001/09/xmldsig#rsa-sha256',
+        #     },
+        #     "_default": {
+        #         "signatureAlgorithm": 'http://www.w3.org/2001/09/xmldsig#rsa-sha1',
+        #     },        
+        # }
+        security_dict = self.setting("SECURITY_CONFIG", {})
+        try:
+            config["security"].update(security_dict[idp.name])
+        except KeyError:
+            config["security"].update(security_dict.get("_default",{}))
+        
+        # IDP specific settings for extra config values
+        # The current primary use case is for NameIDFormat
+        # "SOCIAL_AUTH_SAML_SP_EXTRA": {
+        #     "testshib": {
+        #         "NameIDFormat": "urn:oasis:names:tc:SAML:2.0:nameid-format:string"
+        #     },
+        #     "_default": {
+        #         "NameIDFormat": "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified"
+        #     }
+        # }
+        extra_settings = self.setting("SP_EXTRA", {})
+        try:
+            config["sp"].update(extra_settings[idp.name])
+        except KeyError:
+            config["sp"].update(extra_settings.get("_default",{}))
+        
         return config
 
-    def generate_metadata_xml(self):
+    def generate_metadata_xml(self, idp_name=None):
         """
         Helper method that can be used from your web app to generate the XML
         metadata required to link your web app as a Service Provider with
@@ -236,9 +267,13 @@ class SAMLAuth(BaseAuth):
                                         content_type='text/xml')
                 return HttpResponseServerError(content=', '.join(errors))
         """
-        # python-saml requires us to specify something here even
-        # though it's not used
-        idp = DummySAMLIdentityProvider()
+        
+        # In order to have provider specific settings, grab the ID provider
+        if idp_name is not None:
+            idp = self.get_idp(idp_name)
+        else:
+            idp = DummySAMLIdentityProvider()
+
         config = self.generate_saml_config(idp)
         saml_settings = OneLogin_Saml2_Settings(config)
         metadata = saml_settings.get_sp_metadata()

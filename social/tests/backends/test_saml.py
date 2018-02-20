@@ -16,6 +16,7 @@ except ImportError:
 
 from social.tests.backends.base import BaseBackendTest
 from social.exceptions import AuthMissingParameter
+from social.backends import saml
 from social.p3 import urlparse, urlunparse, urlencode, parse_qs
 
 DATA_DIR = path.join(path.dirname(__file__), 'data')
@@ -40,6 +41,13 @@ class SAMLTest(BaseBackendTest):
         """Patch the time so that we can replay canned
         request/response pairs"""
         super(SAMLTest, self).setUp()
+
+        self.test_idp = saml.SAMLIdentityProvider(
+            'testshib',
+            entity_id='https://dummy.none/saml2',
+            url='https://dummy.none/SSO',
+            x509cert=''
+        )
 
         @staticmethod
         def fixed_time():
@@ -87,6 +95,44 @@ class SAMLTest(BaseBackendTest):
         xml, errors = self.backend.generate_metadata_xml()
         self.assertEqual(len(errors), 0)
         self.assertEqual(xml[0], '<')
+
+    def test_metadata_generation_idp(self):
+        """Test that we can generate the metadata with an IDP"""
+        # Ensure that the values for the test IDP are correct
+        xml, _ = self.backend.generate_metadata_xml(self.test_idp.name)
+        self.assertTrue('urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified' in xml)       
+        self.assertTrue('urn:oasis:names:tc:SAML:2.0:nameid-format:string' not in xml)       
+        
+        # Ensure that the values for without the IDP provided
+        xml, _ = self.backend.generate_metadata_xml()
+        self.assertTrue('urn:oasis:names:tc:SAML:2.0:nameid-format:string' in xml)  
+        self.assertTrue('urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified' not in xml)       
+             
+
+    def test_generate_saml_config(self):
+        """Test Idp specific configuration for Security"""
+
+        # Testing specific IDP
+        conf = self.backend.generate_saml_config(self.test_idp)
+        self.assertEqual(conf['security']['signatureAlgorithm'], "http://www.w3.org/2001/09/xmldsig#rsa-sha256")
+        self.assertEqual(conf['security']['authnRequestsSigned'], False)
+        # Testing not recognized IPD, fallback to _default conf
+        conf = self.backend.generate_saml_config(saml.DummySAMLIdentityProvider())
+        self.assertEqual(conf['security']['signatureAlgorithm'], "http://www.w3.org/2001/09/xmldsig#rsa-sha1")
+        self.assertEqual(conf['security']['authnRequestsSigned'], True)
+
+
+    def test_name_id_format(self):
+        """Test Idp specific configuration for extra settings"""
+        # Verify that we can set the Name ID format per IDP
+        # Testing specific IDP
+        conf = self.backend.generate_saml_config(self.test_idp)
+        self.assertEqual(conf['sp']['NameIDFormat'], "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified")
+        
+        # Testing not recognized IPD, fallback to _default conf
+        conf = self.backend.generate_saml_config(saml.DummySAMLIdentityProvider())
+        self.assertEqual(conf['sp']['NameIDFormat'], "urn:oasis:names:tc:SAML:2.0:nameid-format:string")
+
 
     def test_login(self):
         """Test that we can authenticate with a SAML IdP (TestShib)"""

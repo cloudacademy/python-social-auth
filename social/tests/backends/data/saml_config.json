@@ -19,5 +19,23 @@
             "entity_id": "https://unused.saml.example.com",
             "url": "https://unused.saml.example.com/SAML2/Redirect/SSO"
         }
+    },
+    "SOCIAL_AUTH_SAML_SECURITY_CONFIG": {
+        "testshib": {
+            "authnRequestsSigned": false,
+            "signatureAlgorithm": "http://www.w3.org/2001/09/xmldsig#rsa-sha256"
+        },
+        "_default": {
+            "authnRequestsSigned": true,
+            "signatureAlgorithm": "http://www.w3.org/2001/09/xmldsig#rsa-sha1"
+        }
+    },
+    "SOCIAL_AUTH_SAML_SP_EXTRA": {
+        "testshib": {
+            "NameIDFormat": "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified"
+        },
+        "_default": {
+            "NameIDFormat": "urn:oasis:names:tc:SAML:2.0:nameid-format:string"
+        }
     }
 }
